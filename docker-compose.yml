@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  db-src:
+    image: bitnami/mongodb:6.0.10-debian-11-r17
+    platform: linux/amd64         # linux/amd64 / linux/arm64/v8
+    env_file:
+      - .env
+    environment:
+      - MONGODB_USERNAME=${DB_USER:?Variable not set}
+      - MONGODB_PASSWORD=${DB_PASS:-password123}
+      - MONGODB_DATABASE=${DB_NAME:?Variable not set}
+      - MONGODB_ROOT_PASSWORD=${DB_PASS:-password123}
+      - MONGODB_EXTRA_FLAGS=--wiredTigerCacheSizeGB=2
+    volumes:
+      - mongodb_data_src:/bitnami
+    ports:
+      - 27017:27017
+    networks:
+      - app-tier
+  db-dest:
+    image: bitnami/mongodb:6.0.10-debian-11-r17
+    platform: linux/amd64         # linux/amd64 / linux/arm64/v8
+    env_file:
+      - .env
+    environment:
+      - MONGODB_USERNAME=${DB_USER:?Variable not set}
+      - MONGODB_PASSWORD=${DB_PASS:-password123}
+      - MONGODB_DATABASE=${DB_NAME:?Variable not set}
+      - MONGODB_ROOT_PASSWORD=${DB_PASS:-password123}
+      - MONGODB_EXTRA_FLAGS=--wiredTigerCacheSizeGB=2
+    volumes:
+      - mongodb_data_dest:/bitnami
+    ports:
+      - 27020:27020
+    networks:
+      - app-tier
+  # TODO: build out main.py fastapi logic
+  # app:
+  #   container_name: copy_mongodb-cont
+  #   tty: false             # false for `entrypoint` in Dockerfile
+  #   stdin_open: false      # false for `entrypoint` in Dockerfile
+  #   # image: copy_mongodb
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - .:/app
+  #   ports:
+  #     - 8000:8000
+  #   networks:
+  #     - app-tier
+  #   depends_on:
+  #     - db-src
+  #     - db-dest
+
+volumes:
+  mongodb_data_src:
+    driver: local
+  mongodb_data_dest:
+    driver: local
+
+networks:
+  app-tier:
+    driver: bridge
