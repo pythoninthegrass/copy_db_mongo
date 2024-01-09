@@ -1,25 +1,26 @@
 # syntax=docker/dockerfile:1.6
 
-ARG PYTHON_VERSION=3.11.0-slim-bullseye
-ARG POETRY_VERSION=1.7.1
+# use the official mongodb docker image
+FROM mongo:7.0.4-jammy
 
-FROM python:${PYTHON_VERSION}
+# copy the csv files into the docker image
+COPY ./backup/*.csv /tmp/
 
-ENV PYTHONUNBUFFERED 1
+# environment variables for the mongodb instance
+ENV MONGO_INITDB_DATABASE=${DB_NAME}
+ENV MONGO_PORT=${PORT}
 
-RUN apt update \
-    && apt install -y --no-install-recommends netcat \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-COPY poetry.lock pyproject.toml ./
-
-RUN python -m pip install poetry==${POETRY_VERSION} \
-    && poetry config virtualenvs.in-project true \
-    && poetry install --no-dev
-
-EXPOSE 8000
+# set the working directory
 WORKDIR /app
 
-COPY . .
+# TODO: qa
+# # install mongo cli
+# ENV DEBIAN_FRONTEND=noninteractive
+# RUN apt -qq update && apt -qq install -y mongodb-clients
 
-CMD [ "poetry", "run", "uvicorn", "--host=0.0.0.0", "app.main:app" ]
+# copy the script that will import the csv files into the mongodb instance
+COPY entrypoint.sh .
+
+# run the script when the docker image is run
+# CMD ["./entrypoint.sh"]
+CMD ["sleep", "infinity"]

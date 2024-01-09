@@ -1,5 +1,8 @@
 # ETC
-zips.json
+!**/.gitkeep
+backup/*
+data/*
+collections.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
