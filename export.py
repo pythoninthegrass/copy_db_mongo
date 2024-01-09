@@ -13,6 +13,8 @@ DB_PASS: str = config('DB_PASS')
 DB_NAME: str = config('DB_NAME')
 PORT: int = config('PORT', cast=int)
 
+backup_dir = Path.cwd() / 'backup'
+
 # read csv
 with open(Path.cwd() / 'collections.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
@@ -61,7 +63,7 @@ def export_collection_to_csv(collection: str, limit: Union[int, bool]) -> None:
     documents = list(result)
 
     if len(documents) > 0:
-        filename = f"mongo_backup/{collection}.csv"
+        filename = f"{backup_dir}/{collection}.csv"
         with open(filename, 'w', newline='') as csvfile:
             fieldnames = set()
             for document in documents:
