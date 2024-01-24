@@ -3,6 +3,8 @@
 backup/*
 data/*
 collections.csv
+create_user.js
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

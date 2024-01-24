@@ -2,24 +2,31 @@ version: "3.9"
 
 services:
   mongodb:
-    container_name: mongodb-7.0.4-jammy
-    build:
-      context: .
-      dockerfile: Dockerfile
-    platform: linux/amd64         # linux/amd64 / linux/arm64/v8
+    container_name: mongodb-7.0.4
+    image: mongo:7.0.4-jammy
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    platform: linux/arm64/v8      # linux/amd64 / linux/arm64/v8
     restart: "no"
     working_dir: /app
     env_file:
       - .env
     environment:
+      - MONGO_INITDB_DATABASE=${DB_NAME:-test}
       - MONGO_INITDB_ROOT_USERNAME=${DB_USER:-root}
-      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-toor}
     ports:
-      - ${PORT:-27017}:27017      # host:container
+      - "27017:27017"             # host:container
     volumes:
-      - type: bind
-        source: ./data
-        target: /data/db
+      - .:/app
+      - mongodb:/data/db
+      - mongodb_config:/data/configdb
     logging:
       options:
-          max-size: 1g
+        max-size: 1g
+    command: ["./entrypoint.sh"]
+
+volumes:
+  mongodb:
+  mongodb_config:
