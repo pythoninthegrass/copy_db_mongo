@@ -5,7 +5,7 @@ set -euo pipefail
 # env vars
 ENV=$(env | grep -E 'DB_NAME|DB_USER|DB_PASS')
 for var in $ENV; do
-	export $var
+	export ${var?}
 done
 DB_NAME="${DB_NAME:-test}"
 DB_USER="${DB_USER:-root}"
