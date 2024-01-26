@@ -10,7 +10,7 @@ Copy all collections from one database to another on a separate server.
 
 ## Usage
 The workflow for this project is as follows:
-1. Export collections from source database as CSVs
+1. Export collections from source database as CSVs to `backup` directory
 2. Start MongoDB container
 3. Import collections into destination database
 
