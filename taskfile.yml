@@ -1,0 +1,98 @@
+version: "3.0"
+
+dotenv: ['.env']
+
+env:
+  TLD:
+    sh: "echo {{.TASKFILE_DIR}}"              # absolute path
+    # sh: "basename ${{.TASKFILE_DIR}}"       # directory name
+  COMPOSE_FILE: docker-compose.yml
+
+vars:
+
+tasks:
+  print:
+    - |
+      echo -e "TLD:\t\t$TLD"
+      echo -e "REGISTRY_URL:\t$REGISTRY_URL"
+      echo -e "USER_NAME:\t$USER_NAME"
+      echo -e "SERVICE:\t$SERVICE"
+
+  default:
+    desc: "Default task"
+    cmds:
+      - task --list
+
+  all:
+    desc: "Run all tasks"
+    deps:
+      - build
+      - push
+
+  login:
+    desc: "Login to the registry"
+    run: once
+    cmds:
+      - |
+        if [ "{{.CLI_ARGS}}" = "docker" ]; then
+          docker login docker.io -u "${USER_NAME}" --password-stdin
+        else
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${USER_NAME}" --password-stdin
+        fi
+
+  build:
+    desc: "Build the docker image"
+    cmds:
+      - docker build -t "${REGISTRY_URL}/${USER_NAME}/${SERVICE}:latest" "{{.TLD}}"
+
+  up:
+    desc: "Start the project with docker-compose"
+    cmds:
+      - |
+        docker compose -f {{.COMPOSE_FILE}} up -d \
+        --build \
+        --remove-orphans
+
+  exec:
+    desc: "Launch an interactive shell inside the container"
+    cmds:
+      - docker exec -it $SERVICE bash
+
+  # TODO: gracefully sigint "task: Failed to run task "logs": exit status 130"
+  logs:
+    desc: "Follow the logs of the container"
+    cmds:
+      - cmd: docker logs -tf $SERVICE
+        ignore-error: true
+
+  stop:
+    desc: "Stop the project with docker-compose"
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} stop
+
+  down:
+    desc: "Stop and remove containers, networks, images, and volumes with docker compose"
+    cmds:
+      - |
+        docker compose -f {{.COMPOSE_FILE}} down \
+        --volumes \
+        --rmi all
+
+  push:
+    desc: "Push the docker image to the registry"
+    deps:
+      - build
+    cmds:
+      - |
+        SERVICE="{{.USER_NAME}}/{{.ITEM}}"
+        if [ "{{.REGISTRY_URL}}" = "docker.io" ]; then
+          docker push "$SERVICE"
+        else
+          docker push "{{.REGISTRY_URL}}/$SERVICE"
+        fi
+
+  prune:
+    desc: "Prune docker"
+    cmds:
+      - docker system prune --all --force
+      - docker builder prune --all --force
