@@ -6,47 +6,48 @@ Copy all collections from one database to another on a separate server.
 ### Minimal Requirements
 * [Python 3.11](https://www.python.org/downloads/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
+* [mongosh](https://docs.mongodb.com/mongodb-shell/install/)
 
 ## Quickstart
+* Copy `.env.example` to `.env` and update the environment variables
 ```bash
-# create bridge network
-docker network create app-tier --driver bridge
+# setup virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-# start container(s)
+# install dependencies
+pip install -r requirements.txt
+
+# export collections from source database
+python export.py
+
+# deactivate virtual environment
+deactivate
+
+# start container
 docker-compose up -d
 
-# download official example mongodb collection
-curl -LJO http://media.mongodb.org/zips.json
+# connect to mongodb container
+export $(grep -v '^#' .env | xargs)
+mongosh --host "$DB_HOST" \
+    --port "$PORT" \
+    --username "$DB_USER" \
+    --password "$DB_PASS"
 
-# list volumes
-docker volume ls
-
-# copy file to container
-docker cp zips.json <container>:/tmp/zips.json
-
-# import file to mongodb
-docker exec -it <container> mongoimport --db test --collection zips --file /tmp/zips.json
-
-# connect to container
-docker exec -it <container> bash
-
-# connect to mongodb
-mongo
-
-# list databases
+# show dbs
 show dbs
 
-# list collections
+# use destination database
+use <DB_NAME>
+
+# show collections
 show collections
 
-# list documents
-db.zips.find()
+# run query
+db.<COLLECTION_NAME>.find()
 
-# exit mongodb
+# quit
 exit
-
-# test python script
-python main.py
 
 # stop container(s)
 docker-compose stop
