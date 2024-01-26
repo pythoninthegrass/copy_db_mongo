@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/pythoninthegrass/copy_mongodb/compare/v1.0.0...v1.1.0) (2024-01-26)
+
+
+### Features
+
+* add task runners ([9445ee3](https://github.com/pythoninthegrass/copy_mongodb/commit/9445ee34dd1b4a07c26b6f50f3b048e0851f6321))
+
 ## 1.0.0 (2024-01-26)
 
 
