@@ -14,4 +14,4 @@ COPY entrypoint.sh .
 
 EXPOSE ${PORT:-27017}
 
-CMD ["sh", "-c", "/app/entrypoint.sh" ]
+ENTRYPOINT [ "/app/entrypoint.sh" ]

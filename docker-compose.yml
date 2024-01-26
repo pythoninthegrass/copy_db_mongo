@@ -19,6 +19,7 @@ services:
     ports:
       - "${PORT:-27017}:27017"      # host:container
     volumes:
+      # - .:/app
       - mongodb:/data/db
       - mongodb_config:/data/configdb
     logging:

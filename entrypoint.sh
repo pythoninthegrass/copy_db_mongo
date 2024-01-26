@@ -11,8 +11,16 @@ DB_NAME="${DB_NAME:-test}"
 DB_USER="${DB_USER:-root}"
 DB_PASS="${DB_PASS:-toor}"
 
+keep_alive() {
+	if [[ $# -eq 0 ]]; then
+		sleep infinity
+	else
+		sleep $1
+	fi
+}
+
 # check if mongod is already running
-check() {
+running() {
 	if [[ -z $(pgrep mongod >/dev/null 2>&1; echo $?) ]]; then
 		return 0
 	else
@@ -22,7 +30,7 @@ check() {
 
 # stop the mongodb server
 stop() {
-	if [[ $(check) -eq 1 ]]; then
+	if [[ $(running) -eq 1 ]]; then
 		echo "Stopping mongod..."
 		pkill mongod
 	fi
@@ -36,18 +44,36 @@ start() {
 			--auth)
 				echo "Starting mongod with access control..."
 				mongod --bind_ip_all --auth --maxConns 1000 &
-				sleep 10
+				keep_alive 10
 				;;
 			--noauth)
 				echo "Starting mongod without access control..."
 				mongod --bind_ip_all --noauth --maxConns 1000 &
-				sleep 10
+				keep_alive 10
 				;;
 			*)
 				echo "Invalid argument: $1"
 				exit 1
 				;;
 		esac
+	fi
+}
+
+# stat /data/db and if the size is larger than n kibibytes, then call keep_alive
+skip_initdb() {
+	if [[ $# -eq 1 ]]; then
+		n=$1
+	else
+		n=5
+	fi
+	bytes=$(stat -c %s /data/db)
+	kib=$((bytes / 1024))
+	if [[ $kib -ge $n ]]; then
+		echo "Skipping initdb..."
+		start --auth
+		keep_alive
+	else
+		return 1
 	fi
 }
 
@@ -69,14 +95,6 @@ if [[ ! -f "create_user.js" ]]; then
 fi
 	# run the javascript file with the mongo command
 	mongosh < create_user.js
-}
-
-# create database
-create_db() {
-	mongosh \
-		--username "${DB_USER}" \
-		--password "${DB_PASS}" \
-		--eval "db = db.getSiblingDB('${DB_NAME}'); db.createCollection('_temp')"
 }
 
 # disable telemetry (mongosh --nodb --eval "disableTelemetry()")
@@ -110,11 +128,8 @@ import_csv() {
 	done
 }
 
-keep_alive() {
-	sleep infinity
-}
-
 main() {
+	skip_initdb 5 && return 0
 	start --noauth
 	create_user
 	start --auth
