@@ -1,50 +1,23 @@
 name: automerge
 
-on:
-  # push:
-  #   branches:
-  #     - main
-  #     - release-please--branches--main
+on: pull_request
 
-  schedule:
-    - cron: 0 * * * *
-
-  pull_request_review:
-    types:
-      - submitted
-
-  pull_request_target:
-    branches:
-      - main
-      - release-please--branches--main
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - edited
-      - labeled
-      - unlabeled
-      - ready_for_review
-
-  workflow_dispatch:
-    inputs:
-      pull-request:
-        description: Pull Request Number
-        required: false
-      review:
-        description: Review ID
-        required: false
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  automerge:
+  dependabot:
     runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
-      - uses: reitermarkus/automerge@v2
-        with:
-          token: "${{ secrets.AUTOMERGE_PAT }}"
-          merge-method: rebase
-          do-not-merge-labels: never-merge
-          required-labels: "autorelease: pending"
-          pull-request: "${{ github.event.inputs.pull-request }}"
-          review: "${{ github.event.inputs.review }}"
-          dry-run: true
+      - name: Approve a PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --rebase "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
