@@ -2,18 +2,16 @@
 
 FROM mongo:7.0.4-jammy
 
-ENV MONGO_INITDB_DATABASE=${DB_NAME}
-ENV MONGO_INITDB_ROOT_USERNAME=${DB_USER:-root}
-ENV MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-root}
-ENV MONGO_PORT=${PORT:-27017}
+ENV DB_NAME=${DB_NAME}
+ENV DB_USER=${DB_USER:-root}
+ENV DB_PASS=${DB_PASS:-toor}
+ENV PORT=${PORT:-27017}
 
 WORKDIR /app
 
-COPY ./backup/*.csv /app/backup
-
+COPY ./backup/*.csv ./backup/
 COPY entrypoint.sh .
 
-EXPOSE 27017
+EXPOSE ${PORT:-27017}
 
-# CMD ["sleep", "infinity"]
-CMD ["./entrypoint.sh"]
+CMD ["sh", "-c", "/app/entrypoint.sh" ]

@@ -3,7 +3,6 @@
 **/.dockerignore
 **/.DS_Store
 **/.editorconfig
-**/*.env
 **/.git
 **/.github
 **/.gitignore
@@ -13,11 +12,14 @@
 **/.vs
 **/.vscode
 **/*.*proj.user
+**/*.bak
 **/*.dbmdl
+**/*.env
 **/*.jfm
 **/*.py#
 **/*.py~
 **/*.pyc
+**/*.zip
 **/azds.yaml
 **/charts
 **/compose*

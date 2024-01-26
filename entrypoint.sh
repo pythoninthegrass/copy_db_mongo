@@ -35,12 +35,12 @@ start() {
 		case $1 in
 			--auth)
 				echo "Starting mongod with access control..."
-				mongod --bind_ip_all --auth &
+				mongod --bind_ip_all --auth --maxConns 1000 &
 				sleep 10
 				;;
 			--noauth)
 				echo "Starting mongod without access control..."
-				mongod --bind_ip_all --noauth &
+				mongod --bind_ip_all --noauth --maxConns 1000 &
 				sleep 10
 				;;
 			*)
@@ -67,7 +67,7 @@ if [[ ! -f "create_user.js" ]]; then
 	)
 	EOF
 fi
-	# run the JavaScript file with the mongo command
+	# run the javascript file with the mongo command
 	mongosh < create_user.js
 }
 
@@ -77,6 +77,11 @@ create_db() {
 		--username "${DB_USER}" \
 		--password "${DB_PASS}" \
 		--eval "db = db.getSiblingDB('${DB_NAME}'); db.createCollection('_temp')"
+}
+
+# disable telemetry (mongosh --nodb --eval "disableTelemetry()")
+disable_telemetry() {
+	mongosh --nodb --eval "disableTelemetry()"
 }
 
 # remove all databases and collections
@@ -105,12 +110,18 @@ import_csv() {
 	done
 }
 
+keep_alive() {
+	sleep infinity
+}
+
 main() {
 	start --noauth
 	create_user
 	start --auth
+	disable_telemetry
 	reset_db
 	import_csv
+	keep_alive
 }
 main "$@"
 
