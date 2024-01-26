@@ -8,6 +8,14 @@ Copy all collections from one database to another on a separate server.
 * [Docker Compose](https://docs.docker.com/compose/install/)
 * [mongosh](https://docs.mongodb.com/mongodb-shell/install/)
 
+## Usage
+The workflow for this project is as follows:
+1. Export collections from source database as CSVs
+2. Start MongoDB container
+3. Import collections into destination database
+
+After the first run, `entrypoint.sh` will no longer overwrite the existing data in the destination database. To overwrite the existing data, run `docker-compose down --volumes` to remove the container(s) and then run `docker-compose up -d` to start the container(s) again.
+
 ## Quickstart
 * Copy `.env.example` to `.env` and update the environment variables
 ```bash
