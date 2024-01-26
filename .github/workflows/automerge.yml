@@ -1,53 +1,53 @@
-name: automerge
+name: Automerge
 
 on:
-  pull_request:
-    types:
-      - labeled
-      - unlabeled
-      - synchronize
-      - opened
-      - edited
-      - ready_for_review
-      - reopened
-      - unlocked
+  # Try enabling auto-merge for all open pull requests. (Only recommended for testing.)
+  push:
 
+  # Try enabling auto-merge for all open pull requests.
+  schedule:
+    - cron: 0 * * * *
+
+  # Try enabling auto-merge when a pull request is approved. Note that this event skips the check
+  # for the pull request author association and instead checks the review author association.
   pull_request_review:
     types:
       - submitted
 
-  check_suite:
+  # Try enabling auto-merge for a pull request when a draft is marked as “ready for review”, when
+  # a required label is applied or when a “do not merge” label is removed, or when a pull request
+  # is updated in any way (opened, synchronized, reopened, edited).
+  pull_request_target:
     types:
-      - completed
+      - opened
+      - synchronize
+      - reopened
+      - edited
+      - labeled
+      - unlabeled
+      - ready_for_review
 
-  status:
-
-env:
-  # required labels for pull request to be merged
-  MERGE_LABELS: "autorelease: pending"
-
-  # only pull requests from this author will be merged
-  MERGE_FILTER_AUTHOR: "github-actions[bot]"
-
-  # count of required approvals
-  MERGE_REQUIRED_APPROVALS: 0
-
-  # labels that need to be present for a pull request to be updated
-  # * updating will only happen when the option "Require branches to be up to date before merging" is enabled in the branch protection rules
-  UPDATE_LABELS: ""
+  # Try enabling auto-merge for the specified pull request, review or all open pull requests if
+  # none is specified.
+  workflow_dispatch:
+    inputs:
+      pull-request:
+        description: Pull Request Number
+        required: false
+      review:
+        description: Review ID
+        required: false
 
 jobs:
   automerge:
     runs-on: ubuntu-latest
-
     steps:
-      - id: automerge
-        name: automerge
-        uses: "pascalgn/automerge-action@v0.15.6"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: feedback
-        if: ${{ steps.automerge.outputs.mergeResult == 'merged' }}
-        run: |
-          echo "Pull request ${{ steps.automerge.outputs.pullRequestNumber }} merged!"
+      - uses: reitermarkus/automerge@v2
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          merge-method: rebase
+          do-not-merge-labels: never-merge
+          required-labels: automerge
+          pull-request: "${{ github.event.inputs.pull-request }}"
+          review: "${{ github.event.inputs.review }}"
+          dry-run: true
