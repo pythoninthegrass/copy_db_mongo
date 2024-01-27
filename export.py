@@ -37,7 +37,7 @@ def get_usernames_by_fullname(fullname: str) -> List[str]:
         }
     }
 
-    result = client['bonfire']['User'].find(filter=filter)
+    result = client[DB_NAME]['User'].find(filter=filter)
 
     users = list(result)
     usernames = [user['email'] for user in users]
@@ -48,7 +48,7 @@ def get_collection_sizes() -> Dict[str, int]:
     """Get collection sizes"""
     sizes: Dict[str, int] = {}
     for collection in collections:
-        sizes[collection] = client['bonfire'][collection].estimated_document_count()
+        sizes[collection] = client[DB_NAME][collection].estimated_document_count()
     return sizes
 
 
@@ -59,7 +59,7 @@ def check_if_file_exists(filename: str) -> bool:
 
 def export_collection_to_csv(collection: str, limit: Union[int, bool]) -> None:
     """Export collection to csv"""
-    result = client['bonfire'][collection].find().limit(limit)
+    result = client[DB_NAME][collection].find().limit(limit)
     documents = list(result)
 
     if len(documents) > 0:
