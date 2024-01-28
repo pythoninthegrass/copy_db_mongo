@@ -88,7 +88,7 @@ def main(skip_size=0, min_size=1000, max_size=True) -> None:
         if size == skip_size:
             continue
         elif size < min_size:
-            filename = f"mongo_backup/{collection}.csv"
+            filename = f"{backup_dir}/{collection}.csv"
             if check_if_file_exists(filename):
                 print(f"{collection}.csv exists! Skipping...")
                 continue
@@ -100,7 +100,7 @@ def main(skip_size=0, min_size=1000, max_size=True) -> None:
                 limit = min(min_size, int(size * 0.05))
             else:
                 limit = size
-            filename = f"mongo_backup/{collection}.csv"
+            filename = f"{backup_dir}/{collection}.csv"
             if check_if_file_exists(filename):
                 print(f"{collection}.csv exists! Skipping...")
                 continue
