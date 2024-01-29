@@ -1,35 +1,44 @@
 name: automerge
 
 on:
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+  pull_request_target:
+    branches:
+      - main
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
+  is-a-bot:
+    runs-on: ubuntu-latest
+    outputs:
+      is-a-bot: ${{ steps.is-a-bot.outputs.result }}
+    steps:
+    - name: Check if the PR is from a bot
+      id: is-a-bot
+      run: |
+        if [[ ${{ github.actor }} == 'dependabot[bot]' || ${{ github.actor }} == 'github-actions[bot]' ]]; then
+          echo "::set-output name=result::true"
+        else
+          echo "::set-output name=result::false"
+        fi
+
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' || github.actor == 'github-actions[bot]' }}
+    needs: is-a-bot
+    if: needs.is-a-bot.outputs['is-a-bot'] == 'true'
     steps:
-      - name: Debug
-        run: |
-            echo "PR URL: $PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-
       - name: Approve a PR
         run: |
             gh pr review --approve "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Enable auto-merge for Dependabot PRs
+      - name: Enable auto-merge for bot PRs
         run: |
             gh pr merge --auto --rebase "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
