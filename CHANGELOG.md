@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/pythoninthegrass/copy_mongodb/compare/v1.1.0...v1.2.0) (2024-01-29)
+
+
+### Features
+
+* add json import ([0df8922](https://github.com/pythoninthegrass/copy_mongodb/commit/0df892232b022e29ce7258220468f3f72b6e1e06))
+
 ## [1.1.0](https://github.com/pythoninthegrass/copy_mongodb/compare/v1.0.0...v1.1.0) (2024-01-26)
 
 
