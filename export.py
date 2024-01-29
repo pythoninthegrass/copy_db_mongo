@@ -7,41 +7,34 @@ from pymongo import MongoClient
 from typing import List, Dict, Union
 
 # env vars
-DB_HOST: str = config('DB_HOST')
-DB_USER: str = config('DB_USER')
-DB_PASS: str = config('DB_PASS')
-DB_NAME: str = config('DB_NAME')
+DB_HOST: str = config('DB_HOST', default='localhost')
+DB_USER: str = config('DB_USER', default='root')
+DB_PASS: str = config('DB_PASS', default='toor')
+DB_NAME: str = config('DB_NAME', default='test')
 PORT: int = config('PORT', cast=int)
+COLLECTION: str = config('COLLECTION', default='zips')
+BACKUP_DIR = Path.cwd() / 'backup'
 
-backup_dir = Path.cwd() / 'backup'
-
-# read csv
-with open(Path.cwd() / 'collections.csv', newline='') as csvfile:
-    reader = csv.DictReader(csvfile)
-    collections: set = set([row['collection'] for row in reader])
+# collections to export
+collections = Path.cwd() / 'collections.csv'
 
 # mongodb uri
-URI: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{PORT}/{DB_NAME}"
+URI: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{PORT}"
 QUERY_STRING: str = "ssl=false&readPreference=secondaryPreferred"
 
 # connect to mongodb
 client: MongoClient = MongoClient(f"{URI}?{QUERY_STRING}")
 
-
-def get_usernames_by_fullname(fullname: str) -> List[str]:
-    """Find usernames by full name"""
-    filter = {
-        'fullName': {
-            '$regex': f'.*{fullname}.*',
-            '$options': 'i'
-        }
-    }
-
-    result = client[DB_NAME]['User'].find(filter=filter)
-
-    users = list(result)
-    usernames = [user['email'] for user in users]
-    return usernames
+# read csv
+if collections.is_file():
+    with open(Path.cwd() / 'collections.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        collections: set = set([row['collection'] for row in reader])
+else:
+    # export all collections
+    collections = set()
+    for collection in client[DB_NAME].list_collection_names():
+        collections.add(collection)
 
 
 def get_collection_sizes() -> Dict[str, int]:
@@ -63,7 +56,7 @@ def export_collection_to_csv(collection: str, limit: Union[int, bool]) -> None:
     documents = list(result)
 
     if len(documents) > 0:
-        filename = f"{backup_dir}/{collection}.csv"
+        filename = f"{BACKUP_DIR}/{collection}.csv"
         with open(filename, 'w', newline='') as csvfile:
             fieldnames = set()
             for document in documents:
@@ -88,7 +81,7 @@ def main(skip_size=0, min_size=1000, max_size=True) -> None:
         if size == skip_size:
             continue
         elif size < min_size:
-            filename = f"{backup_dir}/{collection}.csv"
+            filename = f"{BACKUP_DIR}/{collection}.csv"
             if check_if_file_exists(filename):
                 print(f"{collection}.csv exists! Skipping...")
                 continue
@@ -100,7 +93,7 @@ def main(skip_size=0, min_size=1000, max_size=True) -> None:
                 limit = min(min_size, int(size * 0.05))
             else:
                 limit = size
-            filename = f"{backup_dir}/{collection}.csv"
+            filename = f"{BACKUP_DIR}/{collection}.csv"
             if check_if_file_exists(filename):
                 print(f"{collection}.csv exists! Skipping...")
                 continue
