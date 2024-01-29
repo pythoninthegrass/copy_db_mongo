@@ -15,14 +15,17 @@ jobs:
     outputs:
       is-a-bot: ${{ steps.is-a-bot.outputs.result }}
     steps:
-    - name: Check if the PR is from a bot
-      id: is-a-bot
-      run: |
-        if [[ ${{ github.actor }} == 'dependabot[bot]' || ${{ github.actor }} == 'github-actions[bot]' ]]; then
-          echo "::set-output name=result::true"
-        else
-          echo "::set-output name=result::false"
-        fi
+      - name: Check if the PR is from a bot
+        id: is-a-bot
+        run: |
+            if [[ ${{ github.actor }} == 'dependabot[bot]' || ${{ github.actor }} == 'github-actions[bot]' ]]; then
+                echo "result=true" >> $GITHUB_OUTPUT
+            else
+                echo "result=false" >> $GITHUB_OUTPUT
+            fi
+
+      - name: debug
+        run: cat $GITHUB_OUTPUT
 
   dependabot:
     runs-on: ubuntu-latest
