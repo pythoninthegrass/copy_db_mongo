@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "copy-mongodb"
-version = "1.1.0"
+version = "1.2.0"
 description = "Copy all collections from one database to other on other server"
 authors = [
     "giovangonzalez <giovangonzalez@gmail.com>",
