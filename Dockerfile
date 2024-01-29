@@ -7,9 +7,13 @@ ENV DB_USER=${DB_USER:-root}
 ENV DB_PASS=${DB_PASS:-toor}
 ENV PORT=${PORT:-27017}
 
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-COPY ./backup/*.csv ./backup/
+COPY ./backup/* ./backup/
 COPY entrypoint.sh .
 
 EXPOSE ${PORT:-27017}

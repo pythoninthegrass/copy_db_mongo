@@ -2,25 +2,24 @@ version: "3.9"
 
 services:
   mongodb:
-    container_name: copy-mongo
-    image: ${REGISTRY_URL}/${USER_NAME}/copy-mongo
-    build:
-      context: .
-      dockerfile: Dockerfile
+    container_name: copy-mongo-dev
+    image: mongo:7.0.4-jammy
     platform: linux/arm64/v8        # linux/amd64 / linux/arm64/v8
     restart: "no"
     working_dir: /app
     env_file:
       - .env
     environment:
-      - DB_NAME=${DB_NAME:-test}
-      - DB_USER=${DB_USER:-root}
-      - DB_PASS=${DB_PASS:-toor}
+      - MONGO_INITDB_DATABASE=${DB_NAME:-mydatabase}
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-toor}
     ports:
       - "${PORT:-27017}:27017"      # host:container
     volumes:
+      - .:/app
       - mongodb:/data/db
       - mongodb_config:/data/configdb
+      - ./create_user.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     logging:
       options:
         max-size: 1g

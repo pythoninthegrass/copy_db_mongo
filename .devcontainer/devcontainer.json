@@ -7,7 +7,7 @@
   // }
   "service": "mongodb",
   "workspaceFolder": "/app",
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../docker-compose.dev.yml",
   "overrideCommand": true,
   "shutdownAction": "stopCompose",
   "customizations": {
