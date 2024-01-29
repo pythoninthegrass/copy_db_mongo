@@ -29,6 +29,12 @@ tasks:
       - build
       - push
 
+  download:
+    desc: "Download the zips mongodb collection"
+    cmds:
+      - |
+        curl -o {{.TLD}}/backup/zips.json https://media.mongodb.org/zips.json
+
   login:
     desc: "Login to the registry"
     run: once
