@@ -18,11 +18,11 @@ jobs:
       - name: Check if the PR is from a bot
         id: is-a-bot
         run: |
-            if [[ ${{ github.actor }} == 'dependabot[bot]' || ${{ github.actor }} == 'github-actions[bot]' ]]; then
-                echo "result=true" >> $GITHUB_OUTPUT
-            else
-                echo "result=false" >> $GITHUB_OUTPUT
-            fi
+          if [[ ${{ github.actor }} == 'dependabot[bot]' || ${{ github.actor }} == 'github-actions[bot]' ]]; then
+              echo "result=true" >> $GITHUB_OUTPUT
+          else
+              echo "result=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: debug
         run: cat $GITHUB_OUTPUT
