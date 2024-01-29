@@ -15,7 +15,7 @@ DB_PASS: str = config('DB_PASS', default='toor')
 DB_NAME: str = config('DB_NAME', default='test')
 PORT: int = config('PORT', cast=int, default=27017)
 DROP_DB: bool = config('DROP_DB', cast=bool, default=False)
-COLLECTION: str = config('COLLECTION', default='zips')
+COLLECTION: str = config('COLLECTION', default='default')
 BACKUP_DIR = Path.cwd() / "backup"
 
 # TODO: replace with typer
