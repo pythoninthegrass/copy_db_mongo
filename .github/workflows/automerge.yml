@@ -1,6 +1,8 @@
 name: automerge
 
-on: pull_request
+on:
+  push:
+  pull_request:
 
 permissions:
   contents: write
@@ -16,6 +18,7 @@ jobs:
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
