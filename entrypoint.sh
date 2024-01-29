@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2046,SC2086
+
 set -euo pipefail
 
 # env vars
-ENV=$(env | grep -E 'DB_NAME|DB_USER|DB_PASS')
-for var in $ENV; do
-	export ${var?}
-done
+TLD="$(git rev-parse --show-toplevel)"
+ENV_FILE="${TLD}/.env"
+
+if [[ -f "${ENV_FILE}" ]]; then
+	export $(grep -v '^#' ${ENV_FILE} | xargs)
+else
+	ENV=$(env | grep -E 'DB_NAME|DB_USER|DB_PASS')
+	for var in $ENV; do
+		export "${var?}"
+	done
+fi
 DB_NAME="${DB_NAME:-test}"
 DB_USER="${DB_USER:-root}"
 DB_PASS="${DB_PASS:-toor}"
@@ -93,11 +102,13 @@ if [[ ! -f "create_user.js" ]]; then
 	)
 	EOF
 fi
-	# run the javascript file with the mongo command
-	mongosh < create_user.js
+	# create the user if running in container
+	if [[ $(uname -s) = "Linux" ]]; then
+		mongosh < create_user.js
+	fi
 }
 
-# disable telemetry (mongosh --nodb --eval "disableTelemetry()")
+# disable telemetry
 disable_telemetry() {
 	mongosh --nodb --eval "disableTelemetry()"
 }
@@ -129,14 +140,47 @@ import_csv() {
 }
 
 main() {
-	skip_initdb 5 && return 0
-	start --noauth
-	create_user
-	start --auth
-	disable_telemetry
-	reset_db
-	import_csv
-	keep_alive
+	if [[ $# -eq 1 ]]; then
+		case $1 in
+			--skip-initdb)
+				skip_initdb 5
+				;;
+			--noauth)
+				start --noauth
+				;;
+			--auth)
+				start --auth
+				;;
+			--create-user)
+				create_user
+				;;
+			--disable-telemetry)
+				disable_telemetry
+				;;
+			--reset-db)
+				reset_db
+				;;
+			--import-csv)
+				import_csv
+				;;
+			--keep-alive)
+				keep_alive
+				;;
+			*)
+				echo "Invalid argument: $1"
+				exit 1
+				;;
+		esac
+	elif [[ $# -eq 0 ]]; then
+		skip_initdb 5 && return 0
+		start --noauth
+		create_user
+		start --auth
+		disable_telemetry
+		reset_db
+		import_csv
+		keep_alive
+	fi
 }
 main "$@"
 
