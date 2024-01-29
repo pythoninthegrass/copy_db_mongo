@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     environment:
-      - MONGO_INITDB_DATABASE=${DB_NAME:-mydatabase}
+      - MONGO_INITDB_DATABASE=${DB_NAME:-test}
       - MONGO_INITDB_ROOT_USERNAME=${DB_USER:-root}
       - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-toor}
     ports:

@@ -7,7 +7,7 @@
     "configurations": [
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -18,14 +18,11 @@
             "env": {
                 "PYDEVD_DISABLE_FILE_VALIDATION": "1"
             }
-            // "args": ["-i", "response.xml", "-o", "response.csv"],
-            // "args": ["-d", "/Volumes/Data"],
-            // "args": ["-f", "menubar.dmg"],
-            // "args": ["-h"],
+            // "args": ["y"]
         },
         {
             "name": "Python: Django",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "console": "integratedTerminal",
@@ -37,7 +34,7 @@
         },
         {
             "name": "Python: Flask",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/.venv/bin/flask",
             "console": "integratedTerminal",
@@ -52,7 +49,7 @@
         },
         {
             "name": "Python: Flet",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/.venv/bin/flet",
             "console": "integratedTerminal",
@@ -68,7 +65,7 @@
         },
         {
             "name": "Python: Debug Tests",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "pytest",
             "args": [
