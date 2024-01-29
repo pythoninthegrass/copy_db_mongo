@@ -27,7 +27,7 @@ jobs:
       - name: debug
         run: cat $GITHUB_OUTPUT
 
-  dependabot:
+  approveabot:
     runs-on: ubuntu-latest
     needs: is-a-bot
     if: needs.is-a-bot.outputs['is-a-bot'] == 'true'
